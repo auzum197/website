@@ -1,0 +1,261 @@
+---
+import Layout from "@/layouts/main.astro"
+import { IconFlask } from "@tabler/icons-react"
+import { projects } from "@/data/projects"
+import { statusColor, zips } from "@/data/zips"
+import poster from "@/assets/sky/sky-poster.jpg?url"
+import rest from "@/assets/sky/sky-rest.png?url"
+import webm from "@/assets/sky/sky.webm?url"
+import mp4 from "@/assets/sky/sky.mp4?url"
+
+const ZIP_COLS = 12
+
+const CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+let seed = 311
+const next = (): number => {
+  seed = (seed + 0x6d2b79f5) | 0
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  return (t ^ (t >>> 14)) >>> 0
+}
+const revealed: Record<number, { address: string; value: string }> = {
+  1: { address: "zs1q8f…k2e4", value: "1.25" },
+  3: { address: "zs1x7m…9wtu", value: "0.40" },
+}
+const outputs = [0, 1, 2, 3, 4].map((index) => ({
+  index,
+  cipher: Array.from({ length: 20 }, () => CHARSET[next() % 32]).join(""),
+  address: revealed[index]?.address,
+  value: revealed[index]?.value,
+}))
+---
+
+<Layout>
+  <h1 class="sr-only">auzum197</h1>
+  <h2 class="text-lg leading-snug font-semibold">Work</h2>
+  <p class="mt-1 leading-snug text-muted-foreground">
+    Some of the things we've been working on.
+  </p>
+  <ul class="mt-6 grid gap-4 sm:grid-cols-2">
+    {projects.map((project) => {
+      const sky = project.hover === "sky"
+      const zip = project.hover === "zips"
+      const cipher = project.hover === "cipher"
+      return (
+        <li>
+          <a
+            href={project.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-dither-host={sky || zip || cipher ? undefined : ""}
+            data-sky-host={sky ? "" : undefined}
+            data-color={project.color}
+            class="group surface relative flex h-32 items-end justify-between overflow-hidden p-6 outline-none transition-transform duration-100 ease-out focus-visible:ring-1 focus-visible:ring-foreground active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100 sm:h-44"
+          >
+            {sky ? (
+              <>
+                <img
+                  src={rest}
+                  alt=""
+                  aria-hidden="true"
+                  class="pointer-events-none absolute inset-px size-[calc(100%-2px)] rounded-[calc(var(--radius-card)-1px)] object-cover opacity-15 [image-rendering:pixelated]"
+                />
+                <span
+                  data-sky-layer
+                  aria-hidden="true"
+                  class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 ease-out data-on:opacity-100 motion-reduce:transition-none"
+                >
+                  <video
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                    poster={poster}
+                    class="absolute inset-0 size-full object-cover [image-rendering:pixelated]"
+                  >
+                    <source src={webm} type="video/webm" />
+                    <source src={mp4} type="video/mp4" />
+                  </video>
+                </span>
+                <span
+                  aria-hidden="true"
+                  class="vignette pointer-events-none absolute inset-0"
+                />
+                <span
+                  aria-hidden="true"
+                  class="rim pointer-events-none absolute inset-0 opacity-0 group-data-lit:opacity-100"
+                />
+              </>
+            ) : zip ? (
+              <span
+                aria-hidden="true"
+                class="zips pointer-events-none absolute inset-x-3 top-3 grid content-start justify-items-end gap-y-[3px] overflow-hidden font-mono text-[11px] leading-none"
+                style={`grid-template-columns: repeat(${ZIP_COLS}, minmax(0, 1fr))`}
+              >
+                {zips.map(([number, status], i) => (
+                  <span
+                    style={`--c:${statusColor[status]};transition-delay:${((i % ZIP_COLS) + Math.floor(i / ZIP_COLS)) * 14}ms`}
+                  >
+                    {number}
+                  </span>
+                ))}
+              </span>
+            ) : cipher ? (
+              <span
+                aria-hidden="true"
+                class="cipher pointer-events-none absolute top-6 right-6 grid w-max gap-[5px] font-mono text-[10px] leading-none whitespace-nowrap sm:text-[11px]"
+                style={`--c:${project.color}`}
+              >
+                {outputs.map((output) => (
+                  <span
+                    class:list={[
+                      "flex items-center gap-1.5 sm:gap-2",
+                      output.address && "chosen",
+                    ]}
+                  >
+                    <span class="idx w-2">{output.index}</span>
+                    <span class="relative block max-w-[17ch] overflow-hidden sm:max-w-none">
+                      <span class="hide block">{output.cipher}</span>
+                      <span class="reveal absolute inset-0">
+                        {output.address} {output.value}
+                        <span class="hidden sm:inline"> ZEC</span>
+                      </span>
+                    </span>
+                  </span>
+                ))}
+              </span>
+            ) : (
+              <canvas
+                data-dither
+                aria-hidden="true"
+                class="pointer-events-none absolute top-0 left-0 [image-rendering:pixelated]"
+              />
+            )}
+            {project.experimental && (
+              <span class="absolute top-5 left-6 flex items-center gap-1.5 font-mono text-sm leading-none text-muted-foreground">
+                <IconFlask size={16} stroke={1.75} aria-hidden="true" />
+                Experimental
+              </span>
+            )}
+            <span class="relative flex flex-col gap-2">
+              <span class="text-lg leading-none">{project.name}</span>
+              <span class="font-mono text-sm leading-none text-muted-foreground">
+                {project.note}
+              </span>
+            </span>
+            <span class="sr-only">(opens in a new tab)</span>
+          </a>
+        </li>
+      )
+    })}
+    <li>
+      <div class="relative flex h-32 items-end p-6 sm:h-44">
+        <svg
+          aria-hidden="true"
+          class="pointer-events-none absolute inset-0 size-full"
+        >
+          <rect
+            x="0.5"
+            y="0.5"
+            fill="none"
+            stroke="var(--dash)"
+            stroke-dasharray="5 5"
+            style="width: calc(100% - 1px); height: calc(100% - 1px); rx: calc(var(--radius-card) - 0.5px)"
+          />
+        </svg>
+        <span aria-hidden="true" class="redacted h-[18px] w-28"></span>
+        <span class="sr-only">Unannounced project</span>
+      </div>
+    </li>
+  </ul>
+</Layout>
+
+<style>
+  .cipher > :nth-child(5) {
+    display: none;
+  }
+  @media (min-width: 40rem) {
+    .cipher > :nth-child(5) {
+      display: flex;
+    }
+  }
+  .cipher .idx {
+    color: var(--white);
+    opacity: 0.3;
+    transition:
+      color var(--hover-fade) ease-out,
+      opacity var(--hover-fade) ease-out;
+  }
+  .cipher .hide {
+    color: var(--white);
+    opacity: var(--rest-opacity);
+    transition: opacity var(--hover-fade) ease-out;
+  }
+  .cipher .reveal {
+    color: var(--c);
+    opacity: 0;
+    transition: opacity var(--hover-fade) ease-out;
+  }
+  .group:hover .cipher .chosen .hide,
+  .group:focus-visible .cipher .chosen .hide {
+    opacity: 0;
+  }
+  .group:hover .cipher .chosen .reveal,
+  .group:focus-visible .cipher .chosen .reveal,
+  .group:hover .cipher .chosen .idx,
+  .group:focus-visible .cipher .chosen .idx {
+    color: var(--c);
+    opacity: 1;
+  }
+  .cipher .chosen ~ .chosen .hide,
+  .cipher .chosen ~ .chosen .reveal,
+  .cipher .chosen ~ .chosen .idx {
+    transition-delay: 110ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cipher .chosen ~ .chosen * {
+      transition-delay: 0ms !important;
+    }
+  }
+  .zips {
+    height: round(down, calc(100% - 21px), 14px);
+  }
+  .zips {
+    mask-image: radial-gradient(
+      ellipse farthest-side at 100% 0%,
+      black 50%,
+      transparent 80%
+    );
+  }
+  @media (min-width: 40rem) {
+    .zips {
+      mask-image: radial-gradient(
+        ellipse farthest-side at 100% 0%,
+        black 60%,
+        transparent 90%
+      );
+    }
+  }
+  .zips > span {
+    color: var(--white);
+    opacity: var(--rest-opacity);
+    transition:
+      color var(--hover-fade) ease-out,
+      opacity var(--hover-fade) ease-out;
+  }
+  .group:hover .zips > span,
+  .group:focus-visible .zips > span {
+    color: var(--c);
+    opacity: 0.95;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zips > span {
+      transition-delay: 0ms !important;
+    }
+  }
+</style>
+
+<script>
+  import "@/scripts/dither"
+  import "@/scripts/sky"
+</script>

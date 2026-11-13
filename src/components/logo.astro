@@ -1,0 +1,26 @@
+---
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+---
+
+<span
+  class:list={[
+    "inline-flex items-baseline leading-none select-none",
+    className,
+  ]}
+  role="img"
+  aria-label="AuZ"
+>
+  <span aria-hidden="true" class="font-logo-au">
+    Au
+  </span>
+  <span
+    aria-hidden="true"
+    class="font-logo-z -ml-[0.02em] text-[1.42em] leading-[0]"
+  >
+    Z
+  </span>
+</span>

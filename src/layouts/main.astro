@@ -1,0 +1,66 @@
+---
+import "@/styles/global.css"
+import { IconBrandGithub } from "@tabler/icons-react"
+import Logo from "@/components/logo.astro"
+import { GITHUB } from "@/data/projects"
+
+interface Props {
+  title?: string
+}
+
+const { title = "auzum197" } = Astro.props
+const column = "mx-auto w-full max-w-4xl px-6 sm:px-10"
+---
+
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#080808" />
+    <meta
+      name="description"
+      content="auzum197 is an experimental lab focusing on Zcash clients and sovereign tooling."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="flex min-h-svh flex-col">
+      <header class="border-b">
+        <div class:list={[column, "flex h-14 items-center justify-between"]}>
+          <div class="flex items-center gap-3 sm:gap-4">
+            <a href="/" aria-label="Home">
+              <Logo class="text-2xl sm:text-3xl" />
+            </a>
+            <span class="size-2 border border-muted-foreground"></span>
+          </div>
+          <a
+            href={GITHUB}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub (opens in a new tab)"
+            class="-m-2 p-2 text-muted-foreground hover:text-foreground"
+          >
+            <IconBrandGithub size={20} stroke={1.75} aria-hidden="true" />
+          </a>
+        </div>
+      </header>
+
+      <main class:list={[column, "flex-1 py-12 sm:py-16"]}>
+        <slot />
+      </main>
+
+      <footer class="border-t">
+        <div
+          class:list={[
+            column,
+            "flex h-10 items-center font-mono text-xs text-muted-foreground",
+          ]}
+        >
+          © {new Date().getFullYear()}
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
