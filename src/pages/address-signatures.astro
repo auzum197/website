@@ -42,13 +42,15 @@ const step = (): string => `--i:${Math.min(order++, STAGGER_CAP)}`
 
 <Layout title="Address signatures · auzum197">
   <div class="doc" style={`--c:${project?.color}`}>
-    <h1 class="enter text-lg leading-snug font-semibold">Address signatures</h1>
+    <h1 class="enter text-2xl leading-snug font-semibold">
+      Address signatures
+    </h1>
     <p class="enter mt-1 leading-snug text-muted-foreground">
       Sign messages with an Orchard address.
     </p>
     {sections.map((section) => (
       <section class="mt-10">
-        <h2 class="enter leading-snug font-semibold" style={step()}>
+        <h2 class="enter text-lg leading-snug font-semibold" style={step()}>
           {section.title}
         </h2>
         <div class="mt-4 divide-y border-t">
