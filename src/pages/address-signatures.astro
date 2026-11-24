@@ -154,7 +154,7 @@ const step = (): string => `--i:${Math.min(order++, STAGGER_CAP)}`
     font-size: var(--math-size);
   }
   .math .note {
-    color: var(--note-color, var(--muted-foreground));
+    color: var(--note-color, var(--note));
   }
   @media (hover: hover) and (pointer: fine) {
     .doc:has([data-level="0"]:hover) [data-level],

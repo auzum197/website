@@ -69,6 +69,7 @@
   --white: oklch(0.9275 0.0179 92.69);
   --black: oklch(0.1344 0 0);
   --dim: oklch(from var(--white) l c h / 90%);
+  --note: oklch(from var(--white) l c h / 88%);
   --line: oklch(from var(--white) l c h / 12%);
   --rim: oklch(from var(--white) l c h / 9%);
   --rim-top: oklch(from var(--white) l c h / 16%);
@@ -86,6 +87,8 @@
   --enter: 400ms;
   --enter-shift: 6px;
   --stagger: 40ms;
+  --edge-opacity: 0.6;
+  --edge-dim: 0.3;
   --stroke: 1px;
   --stroke-bold: 2px;
   --stroke-path: 3px;

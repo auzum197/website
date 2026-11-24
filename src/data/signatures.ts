@@ -100,8 +100,8 @@ s &= k + c \cdot \mathsf{ivk} \bmod r_{\mathbb{P}} ${n("response")} \\
         label: "Verify",
         math: R`\begin{aligned}
 & R \neq \mathcal{O}, \quad \mathsf{pk_d} \neq \mathcal{O}, \quad s < r_{\mathbb{P}} ${n("else reject")} \\
-c &= H^*\big(\mathtt{0x01} \,\|\, \mathsf{repr}(R) \,\|\, \mathsf{addr} \,\|\, \mathit{digest}\big) ${n("same challenge")} \\
-[s]\, \mathsf{g_d} &\overset{?}{=} R + [c]\, \mathsf{pk_d} ${n("accept if equal")}
+& c = H^*\big(\mathtt{0x01} \,\|\, \mathsf{repr}(R) \,\|\, \mathsf{addr} \,\|\, \mathit{digest}\big) ${n("same challenge")} \\
+& [s]\, \mathsf{g_d} \overset{?}{=} R + [c]\, \mathsf{pk_d} ${n("accept if equal")}
 \end{aligned}`,
       },
     ],
@@ -153,9 +153,9 @@ S &= r + c \cdot \mathsf{rsk} \bmod r_{\mathbb{P}} ${n("response")} \\
         label: "Verify",
         math: R`\begin{aligned}
 & \mathsf{rk} \neq \mathcal{O}, \quad \mathsf{pk_d} \neq \mathcal{O} ${n("else reject")} \\
-c &= H\big(\mathsf{repr}(R) \,\|\, \mathsf{repr}(\mathsf{rk}) \,\|\, \mathit{digest}\big) ${n("same challenge")} \\
-[S]\, \mathcal{G} &\overset{?}{=} R + [c]\, \mathsf{rk} ${n("signature check")} \\
-\mathsf{Verify}(\pi;\, x) &\overset{?}{=} 1 ${n("proof check")}
+& c = H\big(\mathsf{repr}(R) \,\|\, \mathsf{repr}(\mathsf{rk}) \,\|\, \mathit{digest}\big) ${n("same challenge")} \\
+& [S]\, \mathcal{G} \overset{?}{=} R + [c]\, \mathsf{rk} ${n("signature check")} \\
+& \mathsf{Verify}(\pi;\, x) \overset{?}{=} 1 ${n("proof check")}
 \end{aligned}`,
       },
     ],

@@ -123,6 +123,10 @@ const receivePath: readonly (readonly Point[])[] = [
   ],
 ]
 
+/** Edges that the signature paths replace. */
+const COVERED = new Set([3, 4, 8])
+const baseEdges = sigs ? edges.filter((_, index) => !COVERED.has(index)) : edges
+
 const notes: readonly {
   x: number
   y: number
@@ -147,12 +151,12 @@ const authorities = [
   {
     path: "spend",
     y: 466,
-    text: "Spend authority: signature under rk, and a proof for the path ak, ivk, pk_d",
+    text: "Spend authority",
   },
   {
     path: "receive",
     y: 488,
-    text: "Receive authority: Schnorr signature with ivk, on the base g_d",
+    text: "Receive authority",
   },
 ] as const
 
@@ -186,12 +190,14 @@ const label = sigs
   class:list={["tree", sigs && "sigs"]}
 >
   <g class="edges">
-    {edges.map(arrow).map((edge) => (
-      <>
-        <polyline points={edge.line} />
-        <polygon points={edge.head} />
-      </>
-    ))}
+    {baseEdges
+      .map((points) => arrow(points))
+      .map((edge) => (
+        <>
+          <polyline points={edge.line} />
+          <polygon points={edge.head} />
+        </>
+      ))}
   </g>
   {notes.map((note) => (
     <text
@@ -306,10 +312,10 @@ const label = sigs
     fill: currentColor;
   }
   .edges {
-    color: var(--chart-3);
+    opacity: var(--edge-opacity);
   }
   .sigs .edges {
-    color: var(--dash);
+    opacity: var(--edge-dim);
   }
   polyline,
   line {
