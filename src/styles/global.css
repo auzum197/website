@@ -69,6 +69,7 @@
   --white: oklch(0.9275 0.0179 92.69);
   --black: oklch(0.1344 0 0);
   --dim: oklch(from var(--white) l c h / 90%);
+  --note: oklch(from var(--white) l c h / 88%);
   --line: oklch(from var(--white) l c h / 12%);
   --rim: oklch(from var(--white) l c h / 9%);
   --rim-top: oklch(from var(--white) l c h / 16%);
@@ -80,6 +81,26 @@
   --pixel: 3px;
   --rest-opacity: 0.2;
   --hover-fade: 200ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --draw: 700ms;
+  --enter: 400ms;
+  --enter-shift: 6px;
+  --stagger: 40ms;
+  --edge-opacity: 0.6;
+  --edge-dim: 0.3;
+  --stroke: 1px;
+  --stroke-bold: 2px;
+  --stroke-path: 3px;
+  --tree-min: 640px;
+  --tree-max: 702px;
+  --tree-text: 12.5px;
+  --tree-note: 11.5px;
+  --tree-radius: 6px;
+  --math-size: 1.125rem;
+  --scroll-pad: 0.5rem;
+  --line-pad: 0.2rem;
+  --note-gap: 2rem;
 
   --background: var(--black);
   --foreground: var(--white);
@@ -120,6 +141,7 @@
     @apply border-border outline-ring/50;
   }
   html {
+    scrollbar-gutter: stable;
     @apply font-sans;
   }
   body {

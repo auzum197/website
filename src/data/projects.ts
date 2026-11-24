@@ -5,7 +5,7 @@ export interface Project {
   /** Hover color, oklch. */
   color: string
   /** Special hover effect. Default: the dither fill. */
-  hover?: "sky" | "zips" | "cipher"
+  hover?: "sky" | "zips" | "cipher" | "signature"
   /** Marks work that can change or break. */
   experimental?: boolean
 }
@@ -26,6 +26,14 @@ export const projects: readonly Project[] = [
     href: "https://zipreader.org",
     color: "oklch(0.8373 0.0975 232.84)",
     hover: "zips",
+  },
+  {
+    name: "Address signatures",
+    note: "Sign messages with Orchard keys",
+    href: "/address-signatures",
+    color: "oklch(0.86 0.25 145)",
+    hover: "signature",
+    experimental: true,
   },
   {
     name: "ZIP-311 (Sapling)",

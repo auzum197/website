@@ -1,0 +1,206 @@
+---
+import "katex/dist/katex.min.css"
+import katex from "katex"
+import { IconCheck, IconX } from "@tabler/icons-react"
+import Layout from "@/layouts/main.astro"
+import KeyTree from "@/components/key-tree.astro"
+import { projects } from "@/data/projects"
+import { sections, signers } from "@/data/signatures"
+
+const STAGGER_CAP = 8
+
+const project = projects.find((entry) => entry.href === "/address-signatures")
+
+const render = (math: string): string =>
+  math.trim() === ""
+    ? ""
+    : katex.renderToString(String.raw`\displaystyle ${math}`, {
+        throwOnError: true,
+        trust: true,
+        strict: false,
+      })
+
+/** Splits an aligned block into lines of left side, right side and note. */
+const lines = (math: string) =>
+  math
+    .replace(String.raw`\begin{aligned}`, "")
+    .replace(String.raw`\end{aligned}`, "")
+    .split("\\\\\n")
+    .map((line) => {
+      const [main, note = ""] = line.split("&&")
+      const at = main.indexOf("&")
+      return {
+        left: render(main.slice(0, at)),
+        right: render(`{}${main.slice(at + 1)}`),
+        note: render(note),
+      }
+    })
+
+let order = 1
+const step = (): string => `--i:${Math.min(order++, STAGGER_CAP)}`
+---
+
+<Layout title="Address signatures · auzum197">
+  <div class="doc" style={`--c:${project?.color}`}>
+    <h1 class="enter text-2xl leading-snug font-semibold">
+      Address signatures
+    </h1>
+    <p class="enter mt-1 leading-snug text-muted-foreground">
+      Sign messages with an Orchard address.
+    </p>
+    {sections.map((section) => (
+      <section class="mt-10">
+        <h2 class="enter text-lg leading-snug font-semibold" style={step()}>
+          {section.title}
+        </h2>
+        <div class="mt-4 divide-y border-t">
+          {section.blocks.map((block) => (
+            <div class="enter py-5" style={step()}>
+              {block.label && (
+                <h3 class="mb-4 font-mono text-sm leading-none text-muted-foreground">
+                  {block.label}
+                </h3>
+              )}
+              <div>
+                <div class="scroll">
+                  {"math" in block ? (
+                    <div class="math">
+                      {lines(block.math).map((line, index) => (
+                        <div class="line" data-level={block.levels?.[index]}>
+                          <span class="left" set:html={line.left} />
+                          <span set:html={line.right} />
+                          <span class="aside" set:html={line.note} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : block.figure === "signers" ? (
+                    <table class="text-sm">
+                      <thead>
+                        <tr class="font-mono text-muted-foreground">
+                          <th>Holder of</th>
+                          <th>Receive authority</th>
+                          <th>Spend authority</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {signers.map((signer) => (
+                          <tr>
+                            <td class="font-mono">{signer.holder}</td>
+                            {[signer.receive, signer.spend].map((can) => (
+                              <td>
+                                {typeof can === "string" ? (
+                                  can
+                                ) : can ? (
+                                  <>
+                                    <IconCheck
+                                      size={16}
+                                      stroke={1.75}
+                                      aria-hidden="true"
+                                    />
+                                    <span class="sr-only">yes</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <IconX
+                                      size={16}
+                                      stroke={1.75}
+                                      aria-hidden="true"
+                                      className="opacity-30"
+                                    />
+                                    <span class="sr-only">no</span>
+                                  </>
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <KeyTree mode={block.figure} />
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</Layout>
+
+<style is:global>
+  .math {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: start;
+    white-space: nowrap;
+  }
+  .math .line {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: baseline;
+    padding-block: var(--line-pad);
+    transition: color var(--hover-fade) ease;
+  }
+  .math .left {
+    justify-self: end;
+  }
+  .math .aside {
+    padding-left: var(--note-gap);
+  }
+  .math .katex {
+    font-size: var(--math-size);
+  }
+  .math .note {
+    color: var(--note-color, var(--note));
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .doc:has([data-level="0"]:hover) [data-level],
+    .doc:has([data-level="1"]:hover) [data-level]:not([data-level="0"]),
+    .doc:has([data-level="2"]:hover) :is([data-level="2"], [data-level="3"]),
+    .doc:has([data-level="3"]:hover) [data-level="3"] {
+      --note-color: var(--c);
+      color: var(--c);
+    }
+  }
+</style>
+
+<style>
+  .scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: var(--scroll-pad);
+    margin-block: calc(var(--scroll-pad) * -1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--dash) transparent;
+  }
+  @media (min-width: 80rem) {
+    .scroll {
+      overflow: visible;
+    }
+  }
+  th,
+  td {
+    padding: 0.5rem 2rem 0.5rem 0;
+    text-align: left;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-top: 1px solid var(--line);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .enter {
+      animation: enter var(--enter) var(--ease-out) backwards;
+      animation-delay: calc(var(--i, 0) * var(--stagger));
+    }
+    @keyframes enter {
+      from {
+        opacity: 0;
+        transform: translateY(var(--enter-shift));
+      }
+    }
+  }
+</style>

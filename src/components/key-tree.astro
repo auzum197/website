@@ -1,0 +1,372 @@
+---
+interface Props {
+  mode: "keys" | "sigs"
+}
+
+type Point = readonly [number, number]
+
+interface Box {
+  x: number
+  y: number
+  w: number
+  label: string
+  level: 0 | 1 | 2 | 3
+}
+
+const { mode } = Astro.props
+const sigs = mode === "sigs"
+
+const BOX_HEIGHT = 34
+const HEAD = 7
+
+const boxes: readonly Box[] = [
+  { x: 330, y: 16, w: 100, label: "sk", level: 0 },
+  { x: 40, y: 96, w: 140, label: "ask", level: 0 },
+  { x: 290, y: 96, w: 100, label: "nk", level: 1 },
+  { x: 470, y: 96, w: 100, label: "rivk", level: 1 },
+  { x: 40, y: 176, w: 140, label: "ak", level: 1 },
+  { x: 600, y: 176, w: 140, label: "dk, ovk", level: 2 },
+  { x: 230, y: 256, w: 280, label: "ivk = Commit(ak, nk; rivk)", level: 2 },
+  { x: 250, y: 336, w: 240, label: "pk_d = [ivk] g_d", level: 3 },
+  { x: 600, y: 336, w: 140, label: "d = FF1(dk, j)", level: 3 },
+  { x: 250, y: 404, w: 490, label: "address = (d, pk_d)", level: 3 },
+]
+
+const edges: readonly (readonly Point[])[] = [
+  [
+    [380, 50],
+    [380, 72],
+    [110, 72],
+    [110, 94],
+  ],
+  [
+    [380, 72],
+    [340, 72],
+    [340, 94],
+  ],
+  [
+    [380, 72],
+    [520, 72],
+    [520, 94],
+  ],
+  [
+    [110, 130],
+    [110, 174],
+  ],
+  [
+    [150, 210],
+    [150, 232],
+    [260, 232],
+    [260, 254],
+  ],
+  [
+    [340, 130],
+    [340, 254],
+  ],
+  [
+    [500, 130],
+    [500, 254],
+  ],
+  [
+    [540, 130],
+    [540, 150],
+    [670, 150],
+    [670, 174],
+  ],
+  [
+    [370, 290],
+    [370, 334],
+  ],
+  [
+    [670, 210],
+    [670, 334],
+  ],
+  [
+    [598, 353],
+    [494, 353],
+  ],
+  [
+    [370, 370],
+    [370, 402],
+  ],
+  [
+    [670, 370],
+    [670, 402],
+  ],
+]
+
+const spendPath: readonly (readonly Point[])[] = [
+  [
+    [110, 130],
+    [110, 174],
+  ],
+  [
+    [70, 210],
+    [70, 254],
+  ],
+  [
+    [150, 210],
+    [150, 232],
+    [260, 232],
+    [260, 254],
+  ],
+  [
+    [362, 290],
+    [362, 334],
+  ],
+]
+
+const receivePath: readonly (readonly Point[])[] = [
+  [
+    [378, 290],
+    [378, 334],
+  ],
+]
+
+/** Edges that the signature paths replace. */
+const COVERED = new Set([3, 4, 8])
+const baseEdges = sigs ? edges.filter((_, index) => !COVERED.has(index)) : edges
+
+const notes: readonly {
+  x: number
+  y: number
+  text: string
+  middle: boolean
+}[] = [
+  { x: 200, y: 66, text: "PRF expand", middle: true },
+  { x: 118, y: 156, text: "[ask] G", middle: false },
+  { x: 205, y: 226, text: "x only", middle: true },
+  { x: 678, y: 276, text: "index j", middle: false },
+  { x: 546, y: 346, text: "g_d = Hash(d)", middle: true },
+]
+
+const holders: readonly { x: number; text: string; level: Box["level"] }[] = [
+  { x: 40, text: "spending key", level: 0 },
+  { x: 190, text: "full viewing key", level: 1 },
+  { x: 360, text: "incoming viewing key", level: 2 },
+  { x: 560, text: "public", level: 3 },
+]
+
+const authorities = [
+  {
+    path: "spend",
+    y: 466,
+    text: "Spend authority",
+  },
+  {
+    path: "receive",
+    y: 488,
+    text: "Receive authority",
+  },
+] as const
+
+/** Splits a polyline into a shortened line and the arrowhead at its end. */
+const arrow = (points: readonly Point[], head = HEAD) => {
+  const [tx, ty] = points[points.length - 1]
+  const [px, py] = points[points.length - 2]
+  const length = Math.hypot(tx - px, ty - py)
+  const ux = (tx - px) / length
+  const uy = (ty - py) / length
+  const bx = tx - ux * head
+  const by = ty - uy * head
+  const half = head / 2
+  return {
+    line: [...points.slice(0, -1), [bx, by] as const]
+      .map(([x, y]) => `${x},${y}`)
+      .join(" "),
+    head: `${tx},${ty} ${bx - uy * half},${by + ux * half} ${bx + uy * half},${by - ux * half}`,
+  }
+}
+
+const label = sigs
+  ? "What each signature uses in the Orchard key tree"
+  : "Derivation of Orchard keys from the spending key to the address"
+---
+
+<svg
+  viewBox={`39 0 702 ${sigs ? 500 : 482}`}
+  role="img"
+  aria-label={label}
+  class:list={["tree", sigs && "sigs"]}
+>
+  <g class="edges">
+    {baseEdges
+      .map((points) => arrow(points))
+      .map((edge) => (
+        <>
+          <polyline points={edge.line} />
+          <polygon points={edge.head} />
+        </>
+      ))}
+  </g>
+  {notes.map((note) => (
+    <text
+      x={note.x}
+      y={note.y}
+      text-anchor={note.middle ? "middle" : undefined}
+      class="note"
+    >
+      {note.text}
+    </text>
+  ))}
+  {boxes.map((box) => (
+    <g class="key" data-level={sigs ? undefined : box.level}>
+      <rect x={box.x} y={box.y} width={box.w} height={BOX_HEIGHT} />
+      <text
+        x={box.x + box.w / 2}
+        y={box.y + BOX_HEIGHT / 2}
+        text-anchor="middle"
+        dominant-baseline="central"
+      >
+        {box.label}
+      </text>
+    </g>
+  ))}
+  {sigs ? (
+    <>
+      <g class="path" data-path="spend">
+        {spendPath
+          .map((points) => arrow(points, HEAD + 2))
+          .map((edge) => (
+            <>
+              <polyline points={edge.line} />
+              <polygon points={edge.head} />
+            </>
+          ))}
+        <g class="key">
+          <rect x="40" y="256" width="140" height={BOX_HEIGHT} />
+          <text
+            x="110"
+            y={256 + BOX_HEIGHT / 2}
+            text-anchor="middle"
+            dominant-baseline="central"
+          >
+            rk = ak + [α] G
+          </text>
+        </g>
+      </g>
+      <g class="path" data-path="receive">
+        {receivePath
+          .map((points) => arrow(points, HEAD + 2))
+          .map((edge) => (
+            <>
+              <polyline points={edge.line} />
+              <polygon points={edge.head} />
+            </>
+          ))}
+      </g>
+      {authorities.map((authority) => (
+        <g class="path legend" data-path={authority.path}>
+          <rect
+            class="hit"
+            x="40"
+            y={authority.y - 11}
+            width="700"
+            height="22"
+          />
+          <line x1="40" y1={authority.y} x2="76" y2={authority.y} />
+          <text x="86" y={authority.y} dominant-baseline="central" class="note">
+            {authority.text}
+          </text>
+        </g>
+      ))}
+    </>
+  ) : (
+    holders.map((holder) => (
+      <g class="key legend" data-level={holder.level}>
+        <rect class="hit" x={holder.x - 6} y="454" width="150" height="24" />
+        <rect class="swatch" x={holder.x} y="460" width="14" height="12" />
+        <text
+          x={holder.x + 22}
+          y="466"
+          dominant-baseline="central"
+          class="note"
+        >
+          {holder.text}
+        </text>
+      </g>
+    ))
+  )}
+</svg>
+
+<style>
+  .tree {
+    display: block;
+    width: 100%;
+    min-width: var(--tree-min);
+    max-width: var(--tree-max);
+    height: auto;
+    color: var(--white);
+  }
+  text {
+    font-family: var(--font-mono);
+    font-size: var(--tree-text);
+    fill: currentColor;
+  }
+  .note {
+    font-family: var(--font-sans);
+    font-size: var(--tree-note);
+    fill: var(--muted-foreground);
+  }
+  .legend .note {
+    fill: currentColor;
+  }
+  .edges {
+    opacity: var(--edge-opacity);
+  }
+  .sigs .edges {
+    opacity: var(--edge-dim);
+  }
+  polyline,
+  line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--stroke);
+  }
+  polygon {
+    fill: currentColor;
+  }
+  .key,
+  .path {
+    transition: color var(--hover-fade) ease;
+  }
+  .key rect {
+    fill: var(--background);
+    stroke: currentColor;
+    stroke-width: var(--stroke);
+    rx: var(--tree-radius);
+  }
+  .key .swatch {
+    rx: calc(var(--tree-radius) / 2);
+  }
+  .key[data-level="0"] rect {
+    fill: currentColor;
+  }
+  .key[data-level="0"]:not(.legend) text {
+    fill: var(--black);
+  }
+  .key[data-level="1"] rect,
+  .path .key rect {
+    stroke-width: var(--stroke-bold);
+  }
+  .key[data-level="3"] rect {
+    stroke-dasharray: 4 3;
+  }
+  .path polyline,
+  .path line {
+    stroke-width: var(--stroke-path);
+  }
+  .path[data-path="receive"] :is(line, polyline) {
+    stroke-dasharray: 6 4;
+  }
+  .tree .legend rect.hit {
+    fill: transparent;
+    stroke: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tree:has([data-path="spend"]:hover) [data-path="spend"],
+    .tree:has([data-path="receive"]:hover) [data-path="receive"] {
+      color: var(--c);
+    }
+  }
+</style>
