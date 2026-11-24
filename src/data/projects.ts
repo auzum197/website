@@ -16,7 +16,7 @@ export const projects: readonly Project[] = [
   {
     name: "Pendrake",
     note: "Watch-only wallet",
-    href: `${GITHUB}/pendrake-watch`,
+    href: "https://pendrake.app",
     color: "oklch(0.7101 0.1558 252.03)",
     hover: "sky",
   },
