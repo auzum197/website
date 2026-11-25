@@ -28,51 +28,6 @@ export const signers: readonly {
 
 export const sections: readonly Section[] = [
   {
-    title: "Orchard key derivation",
-    blocks: [
-      { figure: "keys" },
-      {
-        label: "Spending key",
-        levels: [0, 0],
-        math: R`\begin{aligned}
-\mathsf{sk} &\xleftarrow{\$} \{0,1\}^{256} ${n("root secret")} \\
-\mathsf{ask} &= \mathsf{ToScalar}\big(\mathsf{PRF}^{\mathsf{expand}}_{\mathsf{sk}}([\mathtt{0x06}])\big) ${n("spend authorizing key")}
-\end{aligned}`,
-      },
-      {
-        label: "Full viewing key",
-        levels: [1, 1, 1],
-        math: R`\begin{aligned}
-\mathsf{ak}^{\mathbb{P}} &= [\mathsf{ask}]\, \mathcal{G}, \quad \mathsf{ak} = \mathsf{Extract}_{\mathbb{P}}(\mathsf{ak}^{\mathbb{P}}) ${n("spend validating key")} \\
-\mathsf{nk} &= \mathsf{ToBase}\big(\mathsf{PRF}^{\mathsf{expand}}_{\mathsf{sk}}([\mathtt{0x07}])\big) ${n("nullifier key")} \\
-\mathsf{rivk} &= \mathsf{ToScalar}\big(\mathsf{PRF}^{\mathsf{expand}}_{\mathsf{sk}}([\mathtt{0x08}])\big) ${n("commitment randomness")}
-\end{aligned}`,
-      },
-      {
-        label: "Incoming viewing key",
-        levels: [2, 2],
-        math: R`\begin{aligned}
-\mathsf{ivk} &= \mathsf{Commit}^{\mathsf{ivk}}_{\mathsf{rivk}}(\mathsf{ak},\, \mathsf{nk}), \quad \mathsf{ivk} \notin \{0, \bot\} ${n("one-way hash")} \\
-\mathsf{dk} \,\|\, \mathsf{ovk} &= \mathsf{PRF}^{\mathsf{expand}}_{\mathsf{rivk}}\big([\mathtt{0x82}] \,\|\, \mathsf{ak} \,\|\, \mathsf{nk}\big) ${n("diversifier key, outgoing key")}
-\end{aligned}`,
-      },
-      {
-        label: "Address",
-        levels: [3, 3, 3, 3],
-        math: R`\begin{aligned}
-\mathsf{d} &= \mathsf{FF1\text{-}AES256}_{\mathsf{dk}}(j) ${n("diversifier, index j")} \\
-\mathsf{g_d} &= \mathsf{DiversifyHash}(\mathsf{d}) ${n("base point")} \\
-\mathsf{pk_d} &= [\mathsf{ivk}]\, \mathsf{g_d} ${n("transmission key")} \\
-\mathsf{addr} &= \mathsf{d} \,\|\, \mathsf{repr}(\mathsf{pk_d}) ${n("43 bytes")}
-\end{aligned}`,
-      },
-    ],
-  },
-  {
-    title: "Where the signatures connect",
-    blocks: [{ figure: "sigs" }, { label: "Who can sign", figure: "signers" }],
-  },
-  {
     title: "Receive-authority signature",
     blocks: [
       {
@@ -156,6 +111,51 @@ S &= r + c \cdot \mathsf{rsk} \bmod r_{\mathbb{P}} ${n("response")} \\
 & c = H\big(\mathsf{repr}(R) \,\|\, \mathsf{repr}(\mathsf{rk}) \,\|\, \mathit{digest}\big) ${n("same challenge")} \\
 & [S]\, \mathcal{G} \overset{?}{=} R + [c]\, \mathsf{rk} ${n("signature check")} \\
 & \mathsf{Verify}(\pi;\, x) \overset{?}{=} 1 ${n("proof check")}
+\end{aligned}`,
+      },
+    ],
+  },
+  {
+    title: "Where the signatures connect",
+    blocks: [{ figure: "sigs" }, { label: "Who can sign", figure: "signers" }],
+  },
+  {
+    title: "Recap: Orchard key derivation",
+    blocks: [
+      { figure: "keys" },
+      {
+        label: "Spending key",
+        levels: [0, 0],
+        math: R`\begin{aligned}
+\mathsf{sk} &\xleftarrow{\$} \{0,1\}^{256} ${n("root secret")} \\
+\mathsf{ask} &= \mathsf{ToScalar}\big(\mathsf{PRF}^{\mathsf{expand}}_{\mathsf{sk}}([\mathtt{0x06}])\big) ${n("spend authorizing key")}
+\end{aligned}`,
+      },
+      {
+        label: "Full viewing key",
+        levels: [1, 1, 1],
+        math: R`\begin{aligned}
+\mathsf{ak}^{\mathbb{P}} &= [\mathsf{ask}]\, \mathcal{G}, \quad \mathsf{ak} = \mathsf{Extract}_{\mathbb{P}}(\mathsf{ak}^{\mathbb{P}}) ${n("spend validating key")} \\
+\mathsf{nk} &= \mathsf{ToBase}\big(\mathsf{PRF}^{\mathsf{expand}}_{\mathsf{sk}}([\mathtt{0x07}])\big) ${n("nullifier key")} \\
+\mathsf{rivk} &= \mathsf{ToScalar}\big(\mathsf{PRF}^{\mathsf{expand}}_{\mathsf{sk}}([\mathtt{0x08}])\big) ${n("commitment randomness")}
+\end{aligned}`,
+      },
+      {
+        label: "Incoming viewing key",
+        levels: [2, 2],
+        math: R`\begin{aligned}
+\mathsf{ivk} &= \mathsf{Commit}^{\mathsf{ivk}}_{\mathsf{rivk}}(\mathsf{ak},\, \mathsf{nk}), \quad \mathsf{ivk} \notin \{0, \bot\} ${n("one-way hash")} \\
+\mathsf{dk} \,\|\, \mathsf{ovk} &= \mathsf{PRF}^{\mathsf{expand}}_{\mathsf{rivk}}\big([\mathtt{0x82}] \,\|\, \mathsf{ak} \,\|\, \mathsf{nk}\big) ${n("diversifier key, outgoing key")}
+\end{aligned}`,
+      },
+      {
+        label: "Address",
+        levels: [3, 3, 3, 3],
+        math: R`\begin{aligned}
+\mathsf{d} &= \mathsf{FF1\text{-}AES256}_{\mathsf{dk}}(j) ${n("diversifier, index j")} \\
+\mathsf{g_d} &= \mathsf{DiversifyHash}(\mathsf{d}) ${n("base point")} \\
+\mathsf{pk_d} &= [\mathsf{ivk}]\, \mathsf{g_d} ${n("transmission key")} \\
+\mathsf{addr} &= \mathsf{d} \,\|\, \mathsf{repr}(\mathsf{pk_d}) ${n("43 bytes")}
 \end{aligned}`,
       },
     ],
