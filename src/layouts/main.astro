@@ -2,13 +2,17 @@
 import "@/styles/global.css"
 import { IconBrandGithub } from "@tabler/icons-react"
 import Logo from "@/components/logo.astro"
+import { SIZE } from "@/data/og"
 import { GITHUB } from "@/data/projects"
+import { DESCRIPTION, NAME } from "@/data/site"
 
 interface Props {
   title?: string
 }
 
-const { title = "auzum197" } = Astro.props
+const { title = NAME } = Astro.props
+const image = new URL("/og.png", Astro.site)
+const url = new URL(Astro.url.pathname, Astro.site)
 const column = "mx-auto w-full max-w-4xl px-6 sm:px-10"
 ---
 
@@ -18,10 +22,18 @@ const column = "mx-auto w-full max-w-4xl px-6 sm:px-10"
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#080808" />
-    <meta
-      name="description"
-      content="auzum197 is an experimental lab focusing on Zcash clients and sovereign tooling."
-    />
+    <meta name="description" content={DESCRIPTION} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={NAME} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={DESCRIPTION} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content={String(SIZE.width)} />
+    <meta property="og:image:height" content={String(SIZE.height)} />
+    <meta property="og:image:alt" content={NAME} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={image} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>

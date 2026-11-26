@@ -41,6 +41,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.9",
     "@eslint/js": "^10",
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^22.20.7",
     "eslint": "^10",
     "eslint-plugin-astro": "^3.2.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -51,6 +53,7 @@
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "satori": "^0.63.2",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8"
   },
