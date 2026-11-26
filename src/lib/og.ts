@@ -170,7 +170,6 @@ const font = (path: string): Promise<Buffer> =>
 /** The Open Graph image of the site, as a PNG file. */
 export async function render(): Promise<Buffer> {
   const { width, height } = SIZE
-  const inset = size("og-inset")
   const pad = size("og-pad")
   const logo = size("og-logo")
   const art = png(corona(), width, height).toString("base64")
@@ -182,22 +181,14 @@ export async function render(): Promise<Buffer> {
       style: {
         position: "absolute",
         display: "flex",
-        left: inset,
-        top: inset,
-        width: width - inset * 2,
-        height: height - inset * 2,
-        borderRadius: size("radius-card"),
-        overflow: "hidden",
-        backgroundImage: `radial-gradient(circle at ${SUN.x - inset}px ${SUN.y - inset}px, ${paint(color("raised"))}, ${black} ${size("og-glow")}px)`,
-        boxShadow: `inset 0 0 0 1px ${paint(color("rim"))}, inset 0 1px 0 ${paint(color("rim-top"))}`,
+        left: 0,
+        top: 0,
+        width,
+        height,
+        backgroundImage: `radial-gradient(circle at ${SUN.x}px ${SUN.y}px, ${paint(color("raised"))}, ${black} ${size("og-glow")}px)`,
       },
     },
-    h("img", {
-      src: `data:image/png;base64,${art}`,
-      width,
-      height,
-      style: { position: "absolute", left: -inset, top: -inset },
-    })
+    h("img", { src: `data:image/png;base64,${art}`, width, height })
   )
   const mark = h(
     "div",
